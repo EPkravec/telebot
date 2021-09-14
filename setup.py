@@ -2,35 +2,29 @@
 # -*- coding: utf-8 -*-
 __version__ = "1.1.4.0"
 
-from setuptools import setup, find_packages
+import atexit
 from os.path import join, dirname
-
-from setuptools.command.install import install
-
 from traceback import format_exc
 
+from setuptools import setup, find_packages
+from setuptools.command.install import install
 
-import atexit
-import os
-import os.path
-import sys
-import re
 
 class CustomInstall(install):
     def run(self):
 
-        print "HELLO!"
+        print( "HELLO!")
         #print dirname(__file__)
 
         packages=find_packages()
 
         def _post_install():
-            import os,os.path,sys,re
+            import os.path, re
 
-            print "POST INSTALL STEPS"
+            print ("POST INSTALL STEPS")
 
             def find_modules_path():
-                import os,os.path,sys,re
+                import sys
 
                 return ['/usr/local/lib/python%s.%s/dist-packages/%s'%(sys.version_info[0],sys.version_info[1],packages[0])]
 
@@ -44,7 +38,7 @@ class CustomInstall(install):
                 return xp
             install_paths = find_modules_path()
             # Add your post install code here
-            print "INSTALL PATHS:%s"%install_paths
+            print ("INSTALL PATHS:%s"%install_paths)
 
             pyc_files = []
             py_files = []
@@ -71,11 +65,11 @@ class CustomInstall(install):
                                 pass
 
             try:
-                os.mkdir( '/var/kiosk', 0755 )
+                os.mkdir( '/var/kiosk', 755 )
             except:
                 pass
             try:
-                os.mkdir( '/var/kiosk/clean.d', 0755 )
+                os.mkdir( '/var/kiosk/clean.d', 755 )
             except:
                 pass
 
@@ -85,7 +79,7 @@ class CustomInstall(install):
             f=open(fn,'w')
             f.write(bsf)
             f.close()
-            os.chmod(fn, 0o755)
+            os.chmod(fn, 755)
 
             try:
 
@@ -100,13 +94,13 @@ class CustomInstall(install):
                 t=t.replace('<NAME>',sern)
                 t=t.replace('<DESCRIPTION>','%s deamon ver %s'%(sern,__version__))
 
-                t=t.replace('<TCP_PORT>','8888')   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                t=t.replace('<TCP_PORT>','8888')
 
                 fn='/etc/init.d/%s'%sern
                 f=open(fn,'w')
                 f.write(t)
                 f.close()
-                os.chmod(fn, 0o755)
+                os.chmod(fn, 755)
 
                 import subprocess
                 bsc=[
@@ -115,7 +109,7 @@ class CustomInstall(install):
                     'service %s start'%sern,
                     ]
                 for bashCommand in bsc:
-                    print bashCommand
+                    print(bashCommand)
                     os.system(bashCommand)
                     #process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
                     #output, error = process.communicate()
@@ -130,7 +124,7 @@ class CustomInstall(install):
                 f.close()
 
 
-            print "BYE!"
+            print("BYE!")
 
         atexit.register(_post_install)
         install.run(self)
@@ -140,19 +134,19 @@ setup(
     name='bot',
     version=__version__,
     description='Part of KIOSK project',
-    long_description=open(join(dirname(__file__), 'README.txt')).read(),
-    author='Gregory Spekhov',
-    author_email='g@spekhov.ru',
+    long_description=open(join(dirname(__file__), 'README.md')).read(),
+    author='',
+    author_email='',
     license='BSD',
     install_requires=[
-        'python-telegram-bot',
-        'pymorphy2[fast]',
-        'pymorphy2-dicts-ru',
-        'sgnlogger',
-        'flask',
-        "pyyaml",
-        'requests',
-        'taskservice',
+        # 'python-telegram-bot',
+        # 'pymorphy2[fast]',
+        # 'pymorphy2-dicts-ru',
+        # 'sgnlogger',
+        # 'flask',
+        # "pyyaml",
+        # 'requests',
+        # 'taskservice',
     ],
     packages=find_packages(),
     data_files=[('bot', ['bot/bot-women.answer.txt'])],
@@ -166,8 +160,8 @@ setup(
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.7' ,
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ]
 
