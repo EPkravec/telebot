@@ -2,6 +2,6 @@
 .idea/
 dist/
 bot.egg-info/
-executables/
+executables
 data_client/
 data_no_client/
