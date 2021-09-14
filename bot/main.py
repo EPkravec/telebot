@@ -1,4 +1,4 @@
-from bot.bot.executable_files.config import token
+from bot.executable_files.config import token
 # Подключаем модуль случайных чисел
 import random
 import telebot
