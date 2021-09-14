@@ -3,3 +3,5 @@
 dist/
 bot.egg-info/
 config.py
+data_client/
+data_no_client/

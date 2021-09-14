@@ -2,29 +2,35 @@
 # -*- coding: utf-8 -*-
 __version__ = "1.1.4.0"
 
-import atexit
-from os.path import join, dirname
-from traceback import format_exc
-
 from setuptools import setup, find_packages
+from os.path import join, dirname
+
 from setuptools.command.install import install
 
+from traceback import format_exc
+
+
+import atexit
+import os
+import os.path
+import sys
+import re
 
 class CustomInstall(install):
     def run(self):
 
-        print ("HELLO!")
-
+        print "HELLO!"
+        #print dirname(__file__)
 
         packages=find_packages()
 
         def _post_install():
-            import os.path, re
+            import os,os.path,sys,re
 
-            print ("POST INSTALL STEPS")
+            print "POST INSTALL STEPS"
 
             def find_modules_path():
-                import sys
+                import os,os.path,sys,re
 
                 return ['/usr/local/lib/python%s.%s/dist-packages/%s'%(sys.version_info[0],sys.version_info[1],packages[0])]
 
@@ -37,45 +43,122 @@ class CustomInstall(install):
 
                 return xp
             install_paths = find_modules_path()
-            print ("INSTALL PATHS:%s"%install_paths)
+            # Add your post install code here
+            print "INSTALL PATHS:%s"%install_paths
 
             pyc_files = []
             py_files = []
 
             bsf='#/bin/bash\n'
             for ip in install_paths:
+                #print "MODULE: %s"%ip
                 for root, dirnames, filenames in os.walk(ip):
+                    #print filenames
                     for filename in filenames:
                         if filename.endswith('.pyc'):
                             pyc_files.append(os.path.join(root, filename))
                         elif filename.endswith('.py'):
                             py_files.append(os.path.join(root, filename))
+
                 for py_file in py_files:
                     if py_file + 'c' in pyc_files:
                         if not re.search('/kiosk_',py_file):
+                            #print "removeing:%s"%py_file
                             try:
                                 bsf+='rm -f %s\n'%py_file
                                 os.remove(py_file)
                             except:
                                 pass
-            print ("BYE!")
+
+            try:
+                os.mkdir( '/var/kiosk', 0755 )
+            except:
+                pass
+            try:
+                os.mkdir( '/var/kiosk/clean.d', 0755 )
+            except:
+                pass
+
+            sern=packages[0]
+            fn='/var/kiosk/clean.d/%s.sh'%sern
+            bsf+="rm -f %s\n"%fn
+            f=open(fn,'w')
+            f.write(bsf)
+            f.close()
+            os.chmod(fn, 0o755)
+
+            try:
+
+                stmp=dirname(__file__)+'/service_template.sh'
+                t=open(stmp, 'r').read()
+                t=t.replace('<USERNAME>','root')
+                fid=install_paths[0]+'/server.pyc'# --ssl-cert="/etc/letsencrypt/live/dev.it-vend.ru/fullchain.pem" --ssl-key="/etc/letsencrypt/live/dev.it-vend.ru/privkey.pem"'
+                t=t.replace('<COMMAND>','python %s'%fid)
+                t=t.replace('<FID>',fid)
+                t=t.replace('<DIR>',install_paths[0])
+                sern=packages[0]
+                t=t.replace('<NAME>',sern)
+                t=t.replace('<DESCRIPTION>','%s deamon ver %s'%(sern,__version__))
+
+                t=t.replace('<TCP_PORT>','8888')   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                fn='/etc/init.d/%s'%sern
+                f=open(fn,'w')
+                f.write(t)
+                f.close()
+                os.chmod(fn, 0o755)
+
+                import subprocess
+                bsc=[
+                    'update-rc.d "%s" defaults'%sern,
+                    'service %s stop'%sern,
+                    'service %s start'%sern,
+                    ]
+                for bashCommand in bsc:
+                    print bashCommand
+                    os.system(bashCommand)
+                    #process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
+                    #output, error = process.communicate()
+                    #if output:
+                    #    print output
+                    #if error:
+                    #    print "**** ERROR *****"
+                    #    print error
+            except:
+                f=open("/var/log/setup-err","w")
+                f.write(format_exc())
+                f.close()
+
+
+            print "BYE!"
+
         atexit.register(_post_install)
         install.run(self)
+
 setup(
     cmdclass={'install': CustomInstall},
     name='bot',
     version=__version__,
-    description='Part project',
-    long_description=open(join(dirname(__file__), 'README.md')).read(),
-    author='k.e.p',
-    author_email='kravec.egor@gmail.com',
+    description='Part of KIOSK project',
+    long_description=open(join(dirname(__file__), 'README.txt')).read(),
+    author='Gregory Spekhov',
+    author_email='g@spekhov.ru',
     license='BSD',
-    install_requires=open(join(dirname(__file__), 'requirements.txt')).read(),
+    install_requires=[
+        'python-telegram-bot',
+        'pymorphy2[fast]',
+        'pymorphy2-dicts-ru',
+        'sgnlogger',
+        'flask',
+        "pyyaml",
+        'requests',
+        'taskservice',
+    ],
     packages=find_packages(),
-    data_files=[('bot', ['bot/chromedriver.exe'])],
+    data_files=[('bot', ['bot/bot-women.answer.txt'])],
     include_package_data=True,
     zip_safe=False,
-    keywords='bot',
+    keywords='KIOSK bot',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
@@ -83,8 +166,8 @@ setup(
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ]
 

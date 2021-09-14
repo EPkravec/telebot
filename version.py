@@ -5,7 +5,6 @@ if __name__ == "__main__":
     import argparse
     import os, re
 
-
     def increment_line(args):
         """
         Ф-я выведения версии библиотеки с ее последующей записью в файл setup.py в библиотеке
@@ -34,14 +33,13 @@ if __name__ == "__main__":
         print('new version: %s' % nv)
         return '__version__ = "%s"\n' % nv
 
-
     setup = os.path.dirname(os.path.abspath(__file__)) + '/setup.py'
 
     with open(setup, 'r') as f:
         lines = f.readlines()
 
     for lno in range(len(lines)):
-        x = re.search(r'^\s*__version__\s*=\s*"(.*)"\s*$', lines[lno])
+        x = re.search(ur'^\s*__version__\s*=\s*"(.*)"\s*$', lines[lno])
         if x:
             __version__ = x.group(1)
             break

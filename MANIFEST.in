@@ -1,1 +1,2 @@
-include chromedriver.exe
+include service_template.sh
+recursive-include bot *.txt
