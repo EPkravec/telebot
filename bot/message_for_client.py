@@ -1,4 +1,4 @@
-from parsing_youtube import data_link_client, browser, link_parse_client, total_contackt_client
+from parsing import data_link_client, browser, link_parse_client, total_contackt_client
 
 link_client_parse = link_parse_client(browser,
                                       'https://www.youtube.com/results?search_query=%D1%80%D0%B5%D1%86%D0%B5%D0%BF%D1%82%D1%8B&sp=CAE%253D')

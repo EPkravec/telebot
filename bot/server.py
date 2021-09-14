@@ -1,21 +1,21 @@
-from bot.executable_files.config import token
-# Подключаем модуль случайных чисел
+from executables.setting import token
+
 import random
 import telebot
 from telebot import types
-from parsing_youtube import browser
-from parsing_youtube import link_sladost, data_link_client
+from parsing import browser
+from parsing import link_sladost, data_link_client
 
 url = 'https://www.youtube.com/channel/UC16_fT1sHaIFNhnLg3kw1Jw'
 bot = telebot.TeleBot(token)
 
 
-def connect_parse(links_foood):
-    for z in links_foood:
-        for i in links_foood[z].keys():
-            k = links_foood[z][i]
-            link_sladost(browser, i, k)
-    return i, k
+# def connect_parse(links_foood):
+#     for z in links_foood:
+#         for i in links_foood[z].keys():
+#             k = links_foood[z][i]
+#             link_sladost(browser, i, k)
+#     return i, k
 
 
 dec_tort_links = link_sladost(browser, 'dec_tort',
