@@ -9,14 +9,13 @@ from parsing import link_sladost, data_link_client
 url = 'https://www.youtube.com/channel/UC16_fT1sHaIFNhnLg3kw1Jw'
 bot = telebot.TeleBot(token)
 
-
 # def connect_parse(links_foood):
 #     for z in links_foood:
 #         for i in links_foood[z].keys():
 #             k = links_foood[z][i]
 #             link_sladost(browser, i, k)
 #     return i, k
-
+#
 
 dec_tort_links = link_sladost(browser, 'dec_tort',
                               'https://www.youtube.com/results?search_query=%D1%80%D0%B5%D1%86%D0%B5%D0%BF%D1%82%D1'

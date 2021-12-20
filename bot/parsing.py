@@ -5,7 +5,7 @@ from selenium import webdriver
 
 options = webdriver.ChromeOptions()
 options.headless = True  # тут выключение  браузера
-browser = webdriver.Chrome(keep_alive=False, options=options, executable_path=r'executables\chromedriver.exe')
+browser = webdriver.Chrome(keep_alive=False, options=options, executable_path=r'C:\Users\1\PycharmProjects\telebot\bot\executables\chromedriver.exe')
 
 
 def data_link_client(browser, i, url):

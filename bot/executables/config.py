@@ -1,5 +1,7 @@
-
-
+my_tags = ['автоворонка', 'автопродажы']
+login = 'kravets_egor_python'#'kravets_egor_python'
+password = '12311987qQ'#'12311987qQ'
+mess = 'Привет, я занимаюсь разработкой телеграм ботов, если тебе нужен бот напиши Мне нужен бот'
 links_foood = {
     'dec': {
         'dec_tort': 'https://www.youtube.com/results?search_query=%D1%80%D0%B5%D1%86%D0%B5%D0%BF%D1%82%D1%8B+%D1%82%D0%BE%D1%80%D1%82%D0%BE%D0%B2+',
