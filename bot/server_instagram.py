@@ -1,9 +1,12 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 import os
-import random
 import datetime
 from time import sleep
 from selenium import webdriver
 from multiprocessing import Process
+
 from executables.config import my_tags, login, password, mess
 
 
@@ -28,7 +31,6 @@ class GetInstagram:
         while True:
             now = datetime.datetime.now()
             real_time = now.strftime("%d-%m-%Y %H:%M:%S")
-            sleep(1)
             return real_time
 
     def options_argument(self):
@@ -53,16 +55,89 @@ class GetInstagram:
                                    options=self.options_argument())
         browser.set_window_rect(width=630, height=930)
         browser.get(self.url_instagramm)
-        print(f'{self.time_print()} Запускаем браузер')
+        print(f'{self.time_print()} ИНФО: запускаем браузер')
         return browser
 
-    def insta(self):
+    def run(self):
         """
-        Ф-я подключения к инстаграм после проверки опций браузер
+        Ф-я
+        """
+        while True:
+            if self.follow() == 0:
+                self.likes()
+            elif self.likes() == 0:
+                self.follow()
+
+    def follow(self):
+        """
+        Ф-я
         """
         browser = self.input_log_pass()
-        self.post_urls = self.get_tags(browser)
-        self.connect_acount_in_list(browser, self.post_urls)
+        while True:
+            self.post_urls = self.get_tags(browser)
+            if self.post_urls == 0:
+                browser.quit()
+                print(f'{self.time_print()} ИНФО: закрываем браузер')
+                break
+            else:
+                if 'sleep' != self.connect_acount_in_list(browser, self.post_urls):
+                    self.connect_acount_in_list(browser, self.post_urls)
+                else:
+                    return 0
+
+    def likes(self):
+        """
+        Ф-я
+        """
+        browser = self.input_log_pass()
+        while True:
+            url_for_like = self.read_url_for_likes()
+            if url_for_like == 0:
+                browser.quit()
+                print(f'{self.time_print()} ИНФО: закрываем браузер')
+                break
+            else:
+                if 'sleep' != self.click_like(browser, url_for_like):
+                    self.click_like(browser, url_for_like)
+                else:
+                    return 0
+
+    def click_like(self, browser, urls):
+        """
+
+        :param browser:
+        :param urls:
+        """
+        try:
+            count_like = 0
+            for url in urls:
+                if count_like == 50:
+                    return 'sleep'
+                browser.get(url)
+                sleep(3)
+                browser.find_element_by_css_selector('div[class="QBdPU rrUvL"]').click()
+                count_like += 1
+                sleep(15)
+        except:
+            print(f'{self.time_print()} ОШИБКА: не смогли поставить лайк')
+
+    def read_url_for_likes(self):
+        """
+
+        :return:
+        """
+        data = []
+        if os.path.exists('base_link.txt'):
+            print(f'{self.time_print()} ИНФО: готовим список для лайков base_link.txt')
+            with open('base_link.txt', 'r') as f:
+                data_file = f.readlines()
+                f.close()
+                for i in data_file:
+                    data.append(i.replace('\n', ''))
+            return data
+        else:
+            print(f'{self.time_print()} ОШИБКА: файл base_link.txt еще не создан')
+            return 0
 
     def input_log_pass(self):
         """
@@ -85,7 +160,7 @@ class GetInstagram:
             sleep(1)
             login.click()
             sleep(1)
-            print(f'{self.time_print()} Приветсвую тебя {self.login}')
+            print(f'{self.time_print()} ИНФО: приветсвую тебя {self.login}')
             sleep(5)
             browser.find_element_by_xpath(
                 '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[3]/div/button').click()
@@ -104,24 +179,65 @@ class GetInstagram:
         """
         try:
             for hastag in my_tags:
-                print(f'{self.time_print()} Используем тег {hastag}')
+                print(f'{self.time_print()} ИНФО: используем тег {hastag}')
                 browser.get(f'https://www.instagram.com/explore/tags/{hastag}/')
-                try:
-                    for scroll in range(1, 3):
-                        browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
-                        hrefs = browser.find_elements_by_tag_name('a')
-                        sleep(5)
-                        self.post_urls = [item.get_attribute('href') for item in hrefs if
-                                          '/p' in item.get_attribute('href')]
-                        self.post_urls = set(self.post_urls)
-                        self.post_urls = list(self.post_urls)
-                    print(f'{self.time_print()} ссылки {self.post_urls}')
-                    return self.post_urls
-                except:
-                    print(f'{self.time_print()} Ошибка: в парсинге данных ссылкок для перехода в аккаунт')
-                    browser.quit()
+
+                for scroll in range(1, 3):
+                    browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+                    hrefs = browser.find_elements_by_tag_name('a')
+                    sleep(20)
+                    self.post_urls = [item.get_attribute('href') for item in hrefs if
+                                      '/p/' in item.get_attribute('href')]
+
+                self.post_urls = set(self.post_urls)
+                self.post_urls = list(self.post_urls)
+                print(f'{self.time_print()} ИНФО: список ссылок до записи в файл {self.post_urls}')
+                post_urls_next = self.read_write_file(self.post_urls)
+                if post_urls_next == 0:
+                    continue
+                else:
+                    return post_urls_next
+            print(f'{self.time_print()} ИНФО: нужно обновить список ключевых слов')
+            return 0
         except:
+            print(f'{self.time_print()} Ошибка: в парсинге данных ссылкок для перехода в аккаунт')
             browser.quit()
+
+    def read_write_file(self, post_urls):
+        """
+
+        :param post_urls:
+        :return:
+        """
+
+        if os.path.exists('base_link.txt'):
+            print(f'{self.time_print()} ИНФО: проверяем на совпадение ссылки в файле base_link.txt')
+            with open('base_link.txt', 'r') as f:
+                data_file = f.readlines()
+                f.close()
+                for url_file in data_file:
+                    count = -1
+                    for url_parse in post_urls:
+                        count += 1
+                        if url_file.replace('\n', '') == url_parse:
+                            post_urls.pop(count)
+            if len(post_urls) > 0:
+                with open('base_link.txt', 'a+') as f:
+                    for url in post_urls:
+                        f.write(url + '\n')
+                    f.close()
+                print(f'{self.time_print()} ИНФО: добавили в файл base_link.txt {post_urls}')
+                return post_urls
+            else:
+                print(f'{self.time_print()} ИНФО: ссылки повторяются нечего записывать в base_link.txt')
+                return 0
+        else:
+            print(f'{self.time_print()} ИНФО: создаем файл для записи файлов base_link.txt')
+            with open('base_link.txt', 'w') as f:
+                for url in post_urls:
+                    f.write(url + '\n')
+                f.close()
+            return post_urls
 
     def connect_acount_in_list(self, browser, post_urls):
         """
@@ -130,48 +246,49 @@ class GetInstagram:
         :param post_urls:
         """
         try:
-            i = 0
+            count_follow = 0
             for url in post_urls:
                 browser.get(url)
-                sleep(3)
-                try:
+                if count_follow == 30:
+                    return 'sleep'
+                if browser.find_element_by_class_name('e1e1d'):
                     browser.find_element_by_class_name('e1e1d').click()
-                except:
-                    print(f'{self.time_print()} Ошибка: не нашли элемент для перехода на аккаунт')
-                sleep(5)
-                try:
-                    browser.find_element_by_css_selector(
-                        'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
-                    sleep(5)
-                except:
-                    print(f'{self.time_print()} Ошибка: не смогли найти кнопку подписаться')
-                try:
-                    name = browser.find_element_by_css_selector(
-                        'h2[class="_7UhW9       fKFbl yUEEX   KV-D4              fDxYl     "]').text
-                    print(f'{self.time_print()} Подписались на  {name}')
-                except:
-                    print(f'{self.time_print()} Ошибка: не смогли найти имя пользователя')
-                sleep(5)
-                try:
-                    browser.find_element_by_css_selector('button[class="sqdOP  L3NKy    _8A5w5    "]').click()
-                    sleep(10)
-                    user_input = browser.find_element_by_css_selector(
-                        'textarea[placeholder="Напишите сообщение..."]')
-                    sleep(5)
-                    user_input.send_keys(self.message)
-                    sleep(5)
-                    browser.find_element_by_css_selector('button[class="sqdOP yWX7d    y3zKF     "]').click()
-                except:
-                    print(f'{self.time_print()} Ошибка: не смогли отправить сообщение')
+                    sleep(20)
+
+                    if browser.browser.find_element_by_css_selector(
+                            'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]'):
+                        browser.find_element_by_css_selector(
+                            'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
+                        print(f'{self.time_print()} Подписались на {url}')
+                        count_follow += 1
+                        sleep(40)
+                    else:
+                        print(f'{self.time_print()} Уже подписаны на {url}')
+                        continue
         except:
             print(f'{self.time_print()} Ошибка: не смогли подписаться на аккаутн')
-            browser.quit()
 
 
-def user1():
-    a = GetInstagram(login, password)
-    a.insta()
+def run():
+    """
+    Ф-я запуска подписок
+    """
+    return GetInstagram(login, password).run()
+
+
+def follow():
+    """
+    Ф-я запуска подписок
+    """
+    return GetInstagram(login, password).follow()
+
+
+def likes():
+    """
+    Ф-я запуска подписок
+    """
+    return GetInstagram(login, password).likes()
 
 
 if __name__ == '__main__':
-    Process(target=user1).start()
+    Process(target=run).start()
