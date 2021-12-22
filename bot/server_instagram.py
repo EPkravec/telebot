@@ -7,7 +7,7 @@ from time import sleep
 from selenium import webdriver
 from multiprocessing import Process
 
-from executables.config import my_tags, login, password, mess
+from config import my_tags, login, password, mess
 
 
 class GetInstagram:
@@ -51,8 +51,12 @@ class GetInstagram:
 
         :return:
         """
-        browser = webdriver.Chrome(r"C:\Users\1\PycharmProjects\telebot\bot\executables\chromedriver.exe",
-                                   options=self.options_argument())
+        try:
+            browser = webdriver.Chrome("chromedriver.exe",
+                                       options=self.options_argument())
+        except:
+            browser = webdriver.Chrome("chromedriver",
+                                       options=self.options_argument())
         browser.set_window_rect(width=630, height=930)
         browser.get(self.url_instagramm)
         print(f'{self.time_print()} ИНФО: запускаем браузер')
