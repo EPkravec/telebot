@@ -1,4 +1,4 @@
-from bot.setting import token
+from setting import token
 
 import random
 import telebot

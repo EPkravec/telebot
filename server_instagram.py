@@ -52,10 +52,10 @@ class GetInstagram:
         :return:
         """
         try:
-            browser = webdriver.Chrome("chromedriver.exe",
+            browser = webdriver.Chrome("./chromedriver.exe",
                                        options=self.options_argument())
         except:
-            browser = webdriver.Chrome("chromedriver",
+            browser = webdriver.Chrome("./chromedriver",
                                        options=self.options_argument())
         browser.set_window_rect(width=630, height=930)
         browser.get(self.url_instagramm)
