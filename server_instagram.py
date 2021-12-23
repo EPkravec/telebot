@@ -7,6 +7,8 @@ from time import sleep
 from selenium import webdriver
 from multiprocessing import Process
 
+from selenium.webdriver.common.by import By
+
 from config import my_tags, login, password, mess
 
 
@@ -19,7 +21,6 @@ class GetInstagram:
         self.login: str = login
         self.password: str = password
         self.tags_defaul: list = my_tags
-        self.url_instagramm: str = 'https://www.instagram.com/'
         self.post_urls: list = ['пусто']
         self.message: str = mess
 
@@ -33,7 +34,7 @@ class GetInstagram:
             real_time = now.strftime("%d-%m-%Y %H:%M:%S")
             return real_time
 
-    def options_argument(self):
+    def create_browser(self):
         """
 
         :return:
@@ -44,21 +45,9 @@ class GetInstagram:
         )
         options.add_argument("start-maximized")
         options.add_argument('--disable-blink-features=AutomationControlled')
-        return options
-
-    def create_browser(self):
-        """
-
-        :return:
-        """
-        try:
-            browser = webdriver.Chrome("./chromedriver.exe",
-                                       options=self.options_argument())
-        except:
-            browser = webdriver.Chrome("./chromedriver",
-                                       options=self.options_argument())
+        # options.headless = True
+        browser = webdriver.Chrome(r"chromedriver.exe", options=options)
         browser.set_window_rect(width=630, height=930)
-        browser.get(self.url_instagramm)
         print(f'{self.time_print()} ИНФО: запускаем браузер')
         return browser
 
@@ -67,10 +56,9 @@ class GetInstagram:
         Ф-я
         """
         while True:
-            if self.follow() == 0:
-                self.likes()
-            elif self.likes() == 0:
-                self.follow()
+            self.follow()
+            self.likes()
+            sleep(18000)
 
     def follow(self):
         """
@@ -87,7 +75,7 @@ class GetInstagram:
                 if 'sleep' != self.connect_acount_in_list(browser, self.post_urls):
                     self.connect_acount_in_list(browser, self.post_urls)
                 else:
-                    return 0
+                    break
 
     def likes(self):
         """
@@ -104,7 +92,7 @@ class GetInstagram:
                 if 'sleep' != self.click_like(browser, url_for_like):
                     self.click_like(browser, url_for_like)
                 else:
-                    return 0
+                    break
 
     def click_like(self, browser, urls):
         """
@@ -119,7 +107,7 @@ class GetInstagram:
                     return 'sleep'
                 browser.get(url)
                 sleep(3)
-                browser.find_element_by_css_selector('div[class="QBdPU rrUvL"]').click()
+                browser.find_element(By.CSS_SELECTOR, 'div[class="QBdPU rrUvL"]').click()
                 count_like += 1
                 sleep(15)
         except:
@@ -150,29 +138,30 @@ class GetInstagram:
         """
         try:
             browser = self.create_browser()
-            browser.get(self.url_instagramm)
+            browser.get('https://www.instagram.com/')
             sleep(1)
-            user_input = browser.find_element_by_css_selector('input[name="username"]')
+            user_input = browser.find_element(By.CSS_SELECTOR, 'input[name="username"]')
             sleep(1)
             user_input.send_keys(self.login)
             sleep(1)
-            password_input = browser.find_element_by_css_selector('input[name="password"]')
+            password_input = browser.find_element(By.CSS_SELECTOR, 'input[name="password"]')
             sleep(1)
             password_input.send_keys(self.password)
             sleep(1)
-            login = browser.find_element_by_css_selector('button[type="submit"]')
+            login = browser.find_element(By.CSS_SELECTOR, 'button[type="submit"]')
             sleep(1)
             login.click()
             sleep(1)
             print(f'{self.time_print()} ИНФО: приветсвую тебя {self.login}')
             sleep(5)
-            browser.find_element_by_xpath(
-                '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[3]/div/button').click()
+            browser.find_element(By.XPATH,
+                                 '//*[@id="react-root"]/section/nav/div[2]/div/div/div[3]/div/div[3]/div/button').click()
             sleep(2)
+            print(f'{self.time_print()} ИНФО: зайшли в инстаграмм')
+
             return browser
         except:
             print(f'{self.time_print()} Ошибка: не смогли зайти в инстаграмм, некорректыне логин или пароль')
-            browser.close()
             browser.quit()
 
     def get_tags(self, browser):
@@ -182,29 +171,30 @@ class GetInstagram:
         :return:
         """
         try:
-            for hastag in my_tags:
-                print(f'{self.time_print()} ИНФО: используем тег {hastag}')
-                browser.get(f'https://www.instagram.com/explore/tags/{hastag}/')
+            try:
+                for hastag in my_tags:
+                    print(f'{self.time_print()} ИНФО: используем тег {hastag}')
+                    browser.get(f'https://www.instagram.com/explore/tags/{hastag}/')
+                    for scroll in range(0, 2):
+                        browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
+                        hrefs = browser.find_elements_by_tag_name('a')
+                        sleep(10)
+                        self.post_urls = [item.get_attribute('href') for item in hrefs if
+                                          '/p/' in item.get_attribute('href')]
 
-                for scroll in range(1, 3):
-                    browser.execute_script('window.scrollTo(0, document.body.scrollHeight)')
-                    hrefs = browser.find_elements_by_tag_name('a')
-                    sleep(20)
-                    self.post_urls = [item.get_attribute('href') for item in hrefs if
-                                      '/p/' in item.get_attribute('href')]
-
-                self.post_urls = set(self.post_urls)
-                self.post_urls = list(self.post_urls)
-                print(f'{self.time_print()} ИНФО: список ссылок до записи в файл {self.post_urls}')
-                post_urls_next = self.read_write_file(self.post_urls)
-                if post_urls_next == 0:
-                    continue
-                else:
-                    return post_urls_next
+                    self.post_urls = set(self.post_urls)
+                    self.post_urls = list(self.post_urls)
+                    post_urls_next = self.read_write_file(self.post_urls)
+                    if post_urls_next != 0:
+                        return post_urls_next
+                    else:
+                        continue
+            except:
+                print(f'{self.time_print()} ОШИБКА: 1 не получили сслыки с тегов для перехода')
             print(f'{self.time_print()} ИНФО: нужно обновить список ключевых слов')
             return 0
         except:
-            print(f'{self.time_print()} Ошибка: в парсинге данных ссылкок для перехода в аккаунт')
+            print(f'{self.time_print()} ОШИБКА: 2 не получили сслыки с тегов для перехода')
             browser.quit()
 
     def read_write_file(self, post_urls):
@@ -230,7 +220,7 @@ class GetInstagram:
                     for url in post_urls:
                         f.write(url + '\n')
                     f.close()
-                print(f'{self.time_print()} ИНФО: добавили в файл base_link.txt {post_urls}')
+                print(f'{self.time_print()} ИНФО: добавили в файл base_link.txt {len(post_urls)} ссылок')
                 return post_urls
             else:
                 print(f'{self.time_print()} ИНФО: ссылки повторяются нечего записывать в base_link.txt')
@@ -255,22 +245,20 @@ class GetInstagram:
                 browser.get(url)
                 if count_follow == 30:
                     return 'sleep'
-                if browser.find_element_by_class_name('e1e1d'):
-                    browser.find_element_by_class_name('e1e1d').click()
-                    sleep(20)
-
-                    if browser.browser.find_element_by_css_selector(
-                            'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]'):
-                        browser.find_element_by_css_selector(
-                            'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
-                        print(f'{self.time_print()} Подписались на {url}')
-                        count_follow += 1
-                        sleep(40)
-                    else:
-                        print(f'{self.time_print()} Уже подписаны на {url}')
-                        continue
+                sleep(10)
+                browser.find_element_by_class_name('e1e1d').click()
+                sleep(5)
+                try:
+                    browser.find_element_by_css_selector(
+                        'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
+                    print(f'{self.time_print()} ИНФО: подписались на {url}')
+                    count_follow += 1
+                    sleep(40)
+                except:
+                    print(f'{self.time_print()} ИНФО: уже подписаны на {url}')
+                    continue
         except:
-            print(f'{self.time_print()} Ошибка: не смогли подписаться на аккаутн')
+            print(f'{self.time_print()} ОШИБКА: не смогли подписаться на аккаутн')
 
 
 def run():
