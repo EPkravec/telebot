@@ -11,7 +11,7 @@ problem = ''
 application = ''
 zayavka = ''
 
-token = '2122963915:AAEDJha3hGoamjvd6ATLkjMzz18K4wbDs_c'
+token = '5058179523:AAG7jewKzqSOwGoQK39PULd57vhBpj65z0w'
 bot = telebot.TeleBot(token)
 
 
@@ -36,22 +36,22 @@ def get_text_messages(message):
 
     elif message.text == "Полное ведение аккаунта":
         zayavka = message.text
-        bot.send_message(message.from_user.id, 'Укажитте ссылку на Ваш инстаграмм')
+        bot.send_message(message.from_user.id, 'Укажите ссылку на Ваш инстаграмм')
         bot.register_next_step_handler(message, get_name_org)
 
     elif message.text == "Распаковка личности":
         zayavka = message.text
-        bot.send_message(message.from_user.id, 'Укажитте ссылку на Ваш инстаграмм')
+        bot.send_message(message.from_user.id, 'Укажите ссылку на Ваш инстаграмм')
         bot.register_next_step_handler(message, get_name_org)
 
     elif message.text == "Анализ конкурентов":
         zayavka = message.text
-        bot.send_message(message.from_user.id, 'Укажитте ссылку на Ваш инстаграмм')
+        bot.send_message(message.from_user.id, 'Укажите ссылку на Ваш инстаграмм')
         bot.register_next_step_handler(message, get_name_org)
 
     elif message.text == "Анализ ЦА":
         zayavka = message.text
-        bot.send_message(message.from_user.id, 'Укажитте ссылку на Ваш инстаграмм')
+        bot.send_message(message.from_user.id, 'Укажите ссылку на Ваш инстаграмм')
         bot.register_next_step_handler(message, get_name_org)
 
 
@@ -66,6 +66,7 @@ def callback_worker(call):
     if call.data == "yes" or call.data == "Да, всё верно":
         bot.send_message(call.message.chat.id,
                          'Заявка отправлена, будет рассмотрена в ближайшее время. С вами свяжутся в течении 24 часов. Удачного дня!')
+        application = 'SMM\n' + application
         bot.send_message(-1001672722503, text=application)
     elif call.data == "no" or call.data == "Нет, исправить":
         name_org = ''
@@ -108,7 +109,7 @@ def get_problem(message):
     keyboard.add(key_yes)  # добавляем кнопку в клавиатуру
     key_no = types.InlineKeyboardButton(text='Нет, исправить', callback_data='no')
     keyboard.add(key_no)
-    application = f'Подана заявка - {zayavka}\nСсылка на инстаграмм: {name_org}\nЗаявка подана: {name_hum}\nВид связи {id_kiosk}\nДетали:{problem}'
+    application = f'Подана заявка - {zayavka}\nСсылка на инстаграмм: {name_org}\nЗаявка подана: {name_hum}\nВид связи: {id_kiosk}\nДетали: {problem}'
     bot.send_message(message.from_user.id, text=application, reply_markup=keyboard)
 
 
