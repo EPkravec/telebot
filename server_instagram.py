@@ -104,6 +104,7 @@ class GetInstagram:
             count_like = 0
             for url in urls:
                 if count_like == 50:
+                    count_like = 0
                     return 'sleep'
                 browser.get(url)
                 sleep(3)
@@ -244,6 +245,7 @@ class GetInstagram:
             for url in post_urls:
                 browser.get(url)
                 if count_follow == 30:
+                    count_follow = 0
                     return 'sleep'
                 sleep(10)
                 browser.find_element_by_class_name('e1e1d').click()
