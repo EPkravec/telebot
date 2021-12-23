@@ -256,6 +256,7 @@ class GetInstagram:
                     sleep(40)
                 except:
                     print(f'{self.time_print()} ИНФО: уже подписаны на {url}')
+                    sleep(5)
                     continue
         except:
             print(f'{self.time_print()} ОШИБКА: не смогли подписаться на аккаутн')
