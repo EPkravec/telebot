@@ -20,7 +20,7 @@ def start(message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.add(*[types.KeyboardButton(name) for name in ['Подать заявку']])
     bot.send_message(message.from_user.id,
-                     text='Добрый день\nВас приветствует бот для подачи заявок на заказ телеграмм бота\n',
+                     text='Добрый день\nВас приветствует бот для подачи заявок для заказа телеграмм бота\n',
                      reply_markup=keyboard)
 
 
