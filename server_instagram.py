@@ -23,6 +23,8 @@ class GetInstagram:
         self.tags_defaul: list = my_tags
         self.post_urls: list = ['пусто']
         self.message: str = mess
+        self.count_like = 0
+        self.count_follow = 0
 
     def time_print(self):
         """
@@ -56,7 +58,7 @@ class GetInstagram:
         Ф-я
         """
         while True:
-            self.follow()
+            # self.follow()
             self.likes()
             sleep(36000)
 
@@ -72,9 +74,9 @@ class GetInstagram:
                 print(f'{self.time_print()} ИНФО: закрываем браузер')
                 break
             else:
-                if 'sleep' != self.connect_acount_in_list(browser, self.post_urls):
+                try:
                     self.connect_acount_in_list(browser, self.post_urls)
-                else:
+                except:
                     break
 
     def likes(self):
@@ -89,9 +91,9 @@ class GetInstagram:
                 print(f'{self.time_print()} ИНФО: закрываем браузер')
                 break
             else:
-                if 'sleep' != self.click_like(browser, url_for_like):
+                try:
                     self.click_like(browser, url_for_like)
-                else:
+                except:
                     break
 
     def click_like(self, browser, urls):
@@ -101,15 +103,15 @@ class GetInstagram:
         :param urls:
         """
         try:
-            count_like = 0
             for url in urls:
-                if count_like == 10:
-                    count_like = 0
-                    return 'sleep'
+                if self.count_like == 10:
+                    print(f'{self.time_print()} ИНФО: достигнут лимит лайков')
+                    break
                 browser.get(url)
                 sleep(3)
                 browser.find_element(By.CSS_SELECTOR, 'div[class="QBdPU rrUvL"]').click()
-                count_like += 1
+                self.count_like += 1
+                print(f'{self.time_print()} ИНФО: поставили лайк {url}')
                 sleep(15)
         except:
             print(f'{self.time_print()} ОШИБКА: не смогли поставить лайк')
@@ -230,7 +232,10 @@ class GetInstagram:
             print(f'{self.time_print()} ИНФО: создаем файл для записи файлов base_link.txt')
             with open('base_link.txt', 'w') as f:
                 for url in post_urls:
-                    f.write(url + '\n')
+                    if url == 'https://www.instagram.com/p/CX3TR8Mtbo_/':
+                        continue
+                    else:
+                        f.write(url + '\n')
                 f.close()
             return post_urls
 
@@ -241,12 +246,11 @@ class GetInstagram:
         :param post_urls:
         """
         try:
-            count_follow = 0
             for url in post_urls:
                 browser.get(url)
-                if count_follow == 15:
-                    count_follow = 0
-                    return 'sleep'
+                if self.count_follow == 15:
+                    print(f'{self.time_print()} ИНФО: достигнут лимит подписок')
+                    break
                 sleep(10)
                 browser.find_element_by_class_name('e1e1d').click()
                 sleep(5)
@@ -254,7 +258,7 @@ class GetInstagram:
                     browser.find_element_by_css_selector(
                         'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
                     print(f'{self.time_print()} ИНФО: подписались на {url}')
-                    count_follow += 1
+                    self.count_follow += 1
                     sleep(40)
                 except:
                     print(f'{self.time_print()} ИНФО: уже подписаны на {url}')
