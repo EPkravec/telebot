@@ -58,7 +58,7 @@ class GetInstagram:
         while True:
             self.follow()
             self.likes()
-            sleep(18000)
+            sleep(36000)
 
     def follow(self):
         """
@@ -103,7 +103,7 @@ class GetInstagram:
         try:
             count_like = 0
             for url in urls:
-                if count_like == 50:
+                if count_like == 10:
                     count_like = 0
                     return 'sleep'
                 browser.get(url)
@@ -244,7 +244,7 @@ class GetInstagram:
             count_follow = 0
             for url in post_urls:
                 browser.get(url)
-                if count_follow == 30:
+                if count_follow == 15:
                     count_follow = 0
                     return 'sleep'
                 sleep(10)
