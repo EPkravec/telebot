@@ -1,11 +1,10 @@
-from setting import token
 
 import random
 import telebot
 from telebot import types
 from parsing import browser
 from parsing import link_sladost, data_link_client
-
+token = ''
 url = 'https://www.youtube.com/channel/UC16_fT1sHaIFNhnLg3kw1Jw'
 bot = telebot.TeleBot(token)
 

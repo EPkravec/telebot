@@ -58,7 +58,7 @@ class GetInstagram:
         Ф-я
         """
         while True:
-            # self.follow()
+            self.follow()
             self.likes()
             sleep(36000)
 
