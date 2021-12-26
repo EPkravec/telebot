@@ -67,34 +67,31 @@ class GetInstagram:
         Ф-я
         """
         browser = self.input_log_pass()
-        while True:
-            self.post_urls = self.get_tags(browser)
-            if self.post_urls == 0:
-                browser.quit()
-                print(f'{self.time_print()} ИНФО: закрываем браузер')
-                break
-            else:
-                try:
-                    self.connect_acount_in_list(browser, self.post_urls)
-                except:
-                    break
+        self.post_urls = self.get_tags(browser)
+        if self.post_urls == 0:
+            browser.quit()
+            print(f'{self.time_print()} ИНФО: закрываем браузер')
+
+        else:
+            try:
+                self.connect_acount_in_list(browser, self.post_urls)
+            except:
+                print(f'{self.time_print()} ИНФО: заканчиваем подписки')
 
     def likes(self):
         """
         Ф-я
         """
         browser = self.input_log_pass()
-        while True:
-            url_for_like = self.read_url_for_likes()
-            if url_for_like == 0:
-                browser.quit()
-                print(f'{self.time_print()} ИНФО: закрываем браузер')
-                break
-            else:
-                try:
-                    self.click_like(browser, url_for_like)
-                except:
-                    break
+        url_for_like = self.read_url_for_likes()
+        if url_for_like == 0:
+            browser.quit()
+            print(f'{self.time_print()} ИНФО: закрываем браузер')
+        else:
+            try:
+                self.click_like(browser, url_for_like)
+            except:
+                print(f'{self.time_print()} ИНФО: заканчиваем лайкать')
 
     def click_like(self, browser, urls):
         """
