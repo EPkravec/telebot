@@ -60,9 +60,9 @@ class GetInstagram:
         Ф-я
         """
         while True:
-            self.get_urls()
+            # self.get_urls()
             self.follow()
-            self.likes()
+            # self.likes()
             sleep(36000)
 
     def get_urls(self):
@@ -78,11 +78,13 @@ class GetInstagram:
         """
         browser = self.input_log_pass()
         url_for_follow = self.read_url_for_()
+        print(1)
         if url_for_follow == 0:
             browser.quit()
             print(f'{self.time_print()} ИНФО: закрываем браузер')
         else:
             try:
+                print(2)
                 self.connect_acount_in_list(browser, url_for_follow)
             except:
                 print(f'{self.time_print()} ИНФО: заканчиваем подписки')
@@ -253,7 +255,7 @@ class GetInstagram:
                         f.write(url + '\n')
                 f.close()
 
-    def connect_acount_in_list(self, browser, post_urls):
+    def connect_acount_in_list(self, browser, urls):
         """
 
         :param browser:
@@ -261,13 +263,17 @@ class GetInstagram:
         """
 
         try:
+            print(11)
+            print(urls)
             if self.old_url_follow == int:
-                for url in post_urls:
+                print(12)
+                for url in urls:
                     if self.count_follow == 15:
                         print(f'{self.time_print()} ИНФО: достигнут лимит подписок')
-                        self.old_url_follow = post_urls.index(url)
+                        self.old_url_follow = urls.index(url)
                         break
                     sleep(10)
+                    browser.get(url)
                     browser.find_element_by_class_name('e1e1d').click()
                     sleep(5)
                     try:
@@ -281,15 +287,22 @@ class GetInstagram:
                         sleep(5)
                         continue
             else:
-                for url in post_urls[self.old_url_follow:]:
+                print(13)
+                for url in urls[self.old_url_follow:]:
                     if self.count_follow == 15:
+                        print(14)
                         print(f'{self.time_print()} ИНФО: достигнут лимит подписок')
-                        self.old_url_follow = post_urls.index(url)
+                        self.old_url_follow = urls.index(url)
                         break
+                    print(15)
                     sleep(10)
+
+                    browser.get(url)
                     browser.find_element_by_class_name('e1e1d').click()
                     sleep(5)
+                    print(16)
                     try:
+                        print(17)
                         browser.find_element_by_css_selector(
                             'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
                         self.count_follow += 1
