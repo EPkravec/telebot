@@ -21,7 +21,7 @@ class GetInstagram:
         self.login: str = login
         self.password: str = password
         self.tags_defaul: list = my_tags
-        self.post_urls: list = ['пусто']
+        self.post_urls: list = []
         self.message: str = mess
         self.count_like = 0
         self.count_follow = 0
@@ -58,23 +58,30 @@ class GetInstagram:
         Ф-я
         """
         while True:
+            self.get_urls()
             self.follow()
             self.likes()
             sleep(36000)
+
+    def get_urls(self):
+        """
+        Ф-я
+        """
+        browser = self.input_log_pass()
+        self.get_tags(browser)
 
     def follow(self):
         """
         Ф-я
         """
         browser = self.input_log_pass()
-        self.post_urls = self.get_tags(browser)
-        if self.post_urls == 0:
+        url_for_follow = self.read_url_for_()
+        if url_for_follow == 0:
             browser.quit()
             print(f'{self.time_print()} ИНФО: закрываем браузер')
-
         else:
             try:
-                self.connect_acount_in_list(browser, self.post_urls)
+                self.connect_acount_in_list(browser, url_for_follow)
             except:
                 print(f'{self.time_print()} ИНФО: заканчиваем подписки')
 
@@ -83,7 +90,7 @@ class GetInstagram:
         Ф-я
         """
         browser = self.input_log_pass()
-        url_for_like = self.read_url_for_likes()
+        url_for_like = self.read_url_for_()
         if url_for_like == 0:
             browser.quit()
             print(f'{self.time_print()} ИНФО: закрываем браузер')
@@ -101,19 +108,19 @@ class GetInstagram:
         """
         try:
             for url in urls:
-                if self.count_like == 10:
+                if self.count_like == 15:
                     print(f'{self.time_print()} ИНФО: достигнут лимит лайков')
                     break
                 browser.get(url)
                 sleep(3)
                 browser.find_element(By.CSS_SELECTOR, 'div[class="QBdPU rrUvL"]').click()
                 self.count_like += 1
-                print(f'{self.time_print()} ИНФО: поставили лайк {url}')
+                print(f'{self.time_print()} ИНФО: поставили лайк {url} счетчик {self.count_like}/{15}')
                 sleep(15)
         except:
             print(f'{self.time_print()} ОШИБКА: не смогли поставить лайк')
 
-    def read_url_for_likes(self):
+    def read_url_for_(self):
         """
 
         :return:
@@ -184,11 +191,7 @@ class GetInstagram:
 
                     self.post_urls = set(self.post_urls)
                     self.post_urls = list(self.post_urls)
-                    post_urls_next = self.read_write_file(self.post_urls)
-                    if post_urls_next != 0:
-                        return post_urls_next
-                    else:
-                        continue
+                    self.read_write_file(self.post_urls)
             except:
                 print(f'{self.time_print()} ОШИБКА: 1 не получили сслыки с тегов для перехода')
             print(f'{self.time_print()} ИНФО: нужно обновить список ключевых слов')
@@ -197,16 +200,17 @@ class GetInstagram:
             print(f'{self.time_print()} ОШИБКА: 2 не получили сслыки с тегов для перехода')
             browser.quit()
 
-    def read_write_file(self, post_urls):
+    def read_write_file(self, post_urls, name='base_link.txt'):
         """
 
+        :param name:
         :param post_urls:
         :return:
         """
 
-        if os.path.exists('base_link.txt'):
-            print(f'{self.time_print()} ИНФО: проверяем на совпадение ссылки в файле base_link.txt')
-            with open('base_link.txt', 'r') as f:
+        if os.path.exists(name):
+            print(f'{self.time_print()} ИНФО: проверяем на совпадение ссылки в файле {name}')
+            with open(name, 'r') as f:
                 data_file = f.readlines()
                 f.close()
                 for url_file in data_file:
@@ -216,25 +220,22 @@ class GetInstagram:
                         if url_file.replace('\n', '') == url_parse:
                             post_urls.pop(count)
             if len(post_urls) > 0:
-                with open('base_link.txt', 'a+') as f:
+                with open(name, 'a+') as f:
                     for url in post_urls:
                         f.write(url + '\n')
                     f.close()
                 print(f'{self.time_print()} ИНФО: добавили в файл base_link.txt {len(post_urls)} ссылок')
-                return post_urls
             else:
-                print(f'{self.time_print()} ИНФО: ссылки повторяются нечего записывать в base_link.txt')
-                return 0
+                print(f'{self.time_print()} ИНФО: ссылки повторяются нечего записывать в {name}')
         else:
-            print(f'{self.time_print()} ИНФО: создаем файл для записи файлов base_link.txt')
-            with open('base_link.txt', 'w') as f:
+            print(f'{self.time_print()} ИНФО: создаем файл для записи файлов {name}')
+            with open(name, 'w') as f:
                 for url in post_urls:
                     if url == 'https://www.instagram.com/p/CX3TR8Mtbo_/':
                         continue
                     else:
                         f.write(url + '\n')
                 f.close()
-            return post_urls
 
     def connect_acount_in_list(self, browser, post_urls):
         """
@@ -244,7 +245,6 @@ class GetInstagram:
         """
         try:
             for url in post_urls:
-                browser.get(url)
                 if self.count_follow == 15:
                     print(f'{self.time_print()} ИНФО: достигнут лимит подписок')
                     break
@@ -254,8 +254,8 @@ class GetInstagram:
                 try:
                     browser.find_element_by_css_selector(
                         'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
-                    print(f'{self.time_print()} ИНФО: подписались на {url}')
                     self.count_follow += 1
+                    print(f'{self.time_print()} ИНФО: подписались на {url} счетчик {self.count_follow}/{15}')
                     sleep(40)
                 except:
                     print(f'{self.time_print()} ИНФО: уже подписаны на {url}')
