@@ -23,8 +23,10 @@ class GetInstagram:
         self.tags_defaul: list = my_tags
         self.post_urls: list = []
         self.message: str = mess
-        self.count_like = 0
-        self.count_follow = 0
+        self.count_like: int = 0
+        self.count_follow: int = 0
+        self.old_url_follow = False
+        self.old_url_like = False
 
     def time_print(self):
         """
@@ -107,16 +109,30 @@ class GetInstagram:
         :param urls:
         """
         try:
-            for url in urls:
-                if self.count_like == 15:
-                    print(f'{self.time_print()} ИНФО: достигнут лимит лайков')
-                    break
-                browser.get(url)
-                sleep(3)
-                browser.find_element(By.CSS_SELECTOR, 'div[class="QBdPU rrUvL"]').click()
-                self.count_like += 1
-                print(f'{self.time_print()} ИНФО: поставили лайк {url} счетчик {self.count_like}/{15}')
-                sleep(15)
+            if self.old_url_like == int:
+                for url in urls:
+                    if self.count_like == 15:
+                        print(f'{self.time_print()} ИНФО: достигнут лимит лайков')
+                        self.old_url_like = urls.index(url)
+                        break
+                    browser.get(url)
+                    sleep(3)
+                    browser.find_element(By.CSS_SELECTOR, 'div[class="QBdPU rrUvL"]').click()
+                    self.count_like += 1
+                    print(f'{self.time_print()} ИНФО: поставили лайк {url} счетчик {self.count_like}/{15}')
+                    sleep(15)
+            else:
+                for url in urls:
+                    if self.count_like == 15:
+                        print(f'{self.time_print()} ИНФО: достигнут лимит лайков')
+                        self.old_url_like = urls.index(url)
+                        break
+                    browser.get(url)
+                    sleep(3)
+                    browser.find_element(By.CSS_SELECTOR, 'div[class="QBdPU rrUvL"]').click()
+                    self.count_like += 1
+                    print(f'{self.time_print()} ИНФО: поставили лайк {url} счетчик {self.count_like}/{15}')
+                    sleep(15)
         except:
             print(f'{self.time_print()} ОШИБКА: не смогли поставить лайк')
 
@@ -243,24 +259,46 @@ class GetInstagram:
         :param browser:
         :param post_urls:
         """
+
         try:
-            for url in post_urls:
-                if self.count_follow == 15:
-                    print(f'{self.time_print()} ИНФО: достигнут лимит подписок')
-                    break
-                sleep(10)
-                browser.find_element_by_class_name('e1e1d').click()
-                sleep(5)
-                try:
-                    browser.find_element_by_css_selector(
-                        'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
-                    self.count_follow += 1
-                    print(f'{self.time_print()} ИНФО: подписались на {url} счетчик {self.count_follow}/{15}')
-                    sleep(40)
-                except:
-                    print(f'{self.time_print()} ИНФО: уже подписаны на {url}')
+            if self.old_url_follow == int:
+                for url in post_urls:
+                    if self.count_follow == 15:
+                        print(f'{self.time_print()} ИНФО: достигнут лимит подписок')
+                        self.old_url_follow = post_urls.index(url)
+                        break
+                    sleep(10)
+                    browser.find_element_by_class_name('e1e1d').click()
                     sleep(5)
-                    continue
+                    try:
+                        browser.find_element_by_css_selector(
+                            'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
+                        self.count_follow += 1
+                        print(f'{self.time_print()} ИНФО: подписались на {url} счетчик {self.count_follow}/{15}')
+                        sleep(40)
+                    except:
+                        print(f'{self.time_print()} ИНФО: уже подписаны на {url}')
+                        sleep(5)
+                        continue
+            else:
+                for url in post_urls[self.old_url_follow:]:
+                    if self.count_follow == 15:
+                        print(f'{self.time_print()} ИНФО: достигнут лимит подписок')
+                        self.old_url_follow = post_urls.index(url)
+                        break
+                    sleep(10)
+                    browser.find_element_by_class_name('e1e1d').click()
+                    sleep(5)
+                    try:
+                        browser.find_element_by_css_selector(
+                            'button[class="_5f5mN       jIbKX  _6VtSN     yZn4P   "]').click()
+                        self.count_follow += 1
+                        print(f'{self.time_print()} ИНФО: подписались на {url} счетчик {self.count_follow}/{15}')
+                        sleep(40)
+                    except:
+                        print(f'{self.time_print()} ИНФО: уже подписаны на {url}')
+                        sleep(5)
+                        continue
         except:
             print(f'{self.time_print()} ОШИБКА: не смогли подписаться на аккаутн')
 
