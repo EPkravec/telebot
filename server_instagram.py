@@ -60,9 +60,9 @@ class GetInstagram:
         Ф-я
         """
         while True:
-            # self.get_urls()
+            self.get_urls()
             self.follow()
-            # self.likes()
+            self.likes()
             sleep(36000)
 
     def get_urls(self):
